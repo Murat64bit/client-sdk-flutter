@@ -26,6 +26,7 @@ add_definitions(-DRTC_DESKTOP_DEVICE)
 add_library(${PLUGIN_NAME} SHARED
   "livekit_plugin.cpp"
   "task_runner_windows.cpp"
+  "audio_ducking_manager.cpp"
   "../shared_cpp/fft_processor.cpp"
   "../shared_cpp/audio_visualizer.cpp"
   "../shared_cpp/pffft.c"
@@ -46,7 +47,14 @@ set_target_properties(${PLUGIN_NAME} PROPERTIES
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin flutter_webrtc_plugin)
+target_link_libraries(${PLUGIN_NAME} PRIVATE
+  flutter
+  flutter_wrapper_plugin
+  flutter_webrtc_plugin
+  ole32
+  mmdevapi
+  uuid
+)
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(livekit_client_bundled_libraries

@@ -33,6 +33,7 @@
 
 #include "audio_visualizer.h"
 #include "task_runner_windows.h"
+#include "audio_ducking_manager.h"
 
 namespace livekit_client_plugin {
 
@@ -154,6 +155,7 @@ private:
   std::unordered_map<std::string, std::unique_ptr<VisualizerSink>> visualizers_;
   BinaryMessenger *messenger_ = nullptr;
   mutable std::mutex mutex_;
+  std::unique_ptr<AudioDuckingManager> audio_ducking_manager_;
 };
 
 // static
@@ -177,6 +179,11 @@ void LiveKitPlugin::RegisterWithRegistrar(
 LiveKitPlugin::LiveKitPlugin(BinaryMessenger *messenger)
     : messenger_(messenger) {
   webrtc_instance_ = FlutterWebRTCPluginSharedInstance();
+  // Initialize the audio ducking manager early so that any audio sessions
+  // created by this process opt-out of Windows' default communications
+  // auto-ducking behavior.
+  audio_ducking_manager_ = std::make_unique<AudioDuckingManager>();
+  audio_ducking_manager_->Initialize();
 }
 
 LiveKitPlugin::~LiveKitPlugin() {}
