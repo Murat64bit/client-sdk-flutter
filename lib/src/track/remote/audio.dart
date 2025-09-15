@@ -103,6 +103,19 @@ class RemoteAudioTrack extends RemoteTrack
     }
     return true;
   }
+ 
+  /// Set playback volume for this remote audio track.
+  /// Uses flutter_webrtc Helper.setVolume under the hood (native on mobile/desktop).
+  /// Expects a non-negative linear multiplier (e.g., 0.0 = mute, 1.0 = 100%, 2.0 = 200%).
+  Future<void> setVolume(double volume) async {
+    final v = volume.isNaN || volume.isInfinite ? 1.0 : (volume < 0 ? 0.0 : volume);
+    try {
+      await rtc.Helper.setVolume(v, mediaStreamTrack);
+    } catch (e) {
+      logger.warning('RemoteAudioTrack.setVolume failed: $e');
+      rethrow;
+    }
+  }
 
   Future<AudioReceiverStats?> getReceiverStats() async {
     if (receiver == null) {
