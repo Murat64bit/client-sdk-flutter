@@ -59,3 +59,5 @@ export 'src/types/video_encoding.dart';
 export 'src/types/video_parameters.dart';
 export 'src/widgets/screen_select_dialog.dart';
 export 'src/widgets/video_track_renderer.dart';
+// Expose Native platform channel helpers for platform-specific controls
+export 'src/support/native.dart';

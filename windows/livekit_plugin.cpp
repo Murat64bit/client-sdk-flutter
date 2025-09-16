@@ -156,6 +156,8 @@ private:
   BinaryMessenger *messenger_ = nullptr;
   mutable std::mutex mutex_;
   std::unique_ptr<AudioDuckingManager> audio_ducking_manager_;
+  // Cached input sensitivity in dB, provided by Dart layer. Placeholder for future native gating.
+  std::atomic<double> input_sensitivity_db_{-45.0};
 };
 
 // static
@@ -254,6 +256,28 @@ void LiveKitPlugin::HandleMethodCall(
     }
 
     result->Success();
+  } else if (method_call.method_name().compare("setInputSensitivityDb") == 0) {
+    try {
+      if (!method_call.arguments()) {
+        result->Error("Bad Arguments", "Null arguments received");
+        return;
+      }
+      flutter::EncodableMap params =
+          GetValue<flutter::EncodableMap>(*method_call.arguments());
+      double db = 0.0;
+      auto it = params.find(flutter::EncodableValue("db"));
+      if (it != params.end()) {
+        if (auto p_db = std::get_if<double>(&it->second)) {
+          db = *p_db;
+        } else if (auto p_db_i = std::get_if<int>(&it->second)) {
+          db = static_cast<double>(*p_db_i);
+        }
+      }
+      input_sensitivity_db_.store(db);
+      result->Success();
+    } catch (...) {
+      result->Error("Error", "Failed to set input sensitivity dB");
+    }
   } else {
     result->NotImplemented();
   }

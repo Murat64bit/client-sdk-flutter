@@ -31,6 +31,16 @@ class Native {
     return channel;
   }
 
+  /// Set input sensitivity threshold in dB (-100..0). Currently only used on Windows native.
+  @internal
+  static Future<void> setInputSensitivityDb(double db) async {
+    try {
+      await channel.invokeMethod<void>('setInputSensitivityDb', <String, dynamic>{'db': db});
+    } catch (error) {
+      logger.warning('setInputSensitivityDb did throw $error');
+    }
+  }
+
   @internal
   static bool bypassVoiceProcessing = false;
 
